@@ -1,7 +1,8 @@
-import { Formik, Field, Form, ErrorMessage } from 'formik';
+import { Formik, Field } from 'formik';
 import * as Yup from 'yup';
 import { nanoid } from 'nanoid';
 import PropTypes from 'prop-types';
+import { Form, ErrorMessage, FormField, Button } from './ContactForm.styled';
 
 const phoneRegExp =
   /^\+?\d{1,4}?[-.\s]?\(?\d{1,3}?\)?[-.\s]?\d{1,4}[-.\s]?\d{1,4}[-.\s]?\d{1,9}$/;
@@ -21,22 +22,23 @@ export const ContactForm = ({ onSave }) => {
         number: '',
       }}
       validationSchema={ContactSchema}
-      onSubmit={values => {
+      onSubmit={(values, actions) => {
         onSave({ ...values, id: nanoid() });
+        actions.resetForm({ values: { name: '', number: '' } });
       }}
     >
       <Form>
-        <label>
+        <FormField>
           Name
           <Field name="name" />
           <ErrorMessage name="name" component="p" />
-        </label>
-        <label>
+        </FormField>
+        <FormField>
           Number
           <Field name="number" />
           <ErrorMessage name="number" component="p" />
-        </label>
-        <button type="submit">Add contact</button>
+        </FormField>
+        <Button type="submit">Add contact</Button>
       </Form>
     </Formik>
   );

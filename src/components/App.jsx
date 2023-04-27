@@ -2,43 +2,54 @@ import { Component } from 'react';
 import { ContactForm } from './ContactForm/ContactForm';
 import { ContactList } from './ContactList/ContactList';
 import { Filter } from './Filter/Filter';
+import { Layout } from './Layout/Layout';
 
 export class App extends Component {
   state = {
-    contacts: [
-      { name: 'Yar', number: '111-22-33', id: '1' },
-      { name: 'Yar1', number: '123-12-34', id: '2' },
-    ],
+    contacts: [],
     filter: '',
   };
-  addContact = newContact =>
-    this.setState(prevState => ({
+  addContact = newContact => {
+    if (this.state.contacts.find(({ name }) => name === newContact.name)) {
+      return alert(`${newContact.name} is already in contacts`);
+    }
+    return this.setState(prevState => ({
       contacts: [newContact, ...prevState.contacts],
     }));
-  filterContacts = e => {
-    this.setState({
-      filter: e.target.value,
-      contacts: this.state.contacts.filter(({ name }) =>
-        name.includes(e.target.value)
-      ),
-    });
-    const filteredContacts = this.state.contacts.filter(({ name }) =>
-      name.includes(e.target.value)
+  };
+  filterContacts = () => {
+    const { contacts, filter } = this.state;
+    return contacts.filter(({ name }) =>
+      name.toLowerCase().includes(filter.toLowerCase())
     );
-    console.log('filteredContacts:', filteredContacts);
+  };
+  deleteContact = contactId => {
+    this.setState(prevState => ({
+      contacts: prevState.contacts.filter(({ id }) => id !== contactId),
+    }));
   };
 
   render() {
-    const { contacts, filter } = this.state;
+    const { filter } = this.state;
     return (
-      <div>
+      <Layout>
         <h1>Phonebook</h1>
         <ContactForm onSave={this.addContact} />
 
         <h2>Contacts</h2>
-        <Filter onChange={this.filterContacts} value={filter} />
-        <ContactList contacts={contacts} />
-      </div>
+        <Filter
+          onChange={e =>
+            this.setState({
+              filter: e.target.value,
+            })
+          }
+          value={filter}
+        />
+        <ContactList
+          contacts={this.filterContacts()}
+          onDelete={this.deleteContact}
+        />
+      </Layout>
     );
   }
 }
